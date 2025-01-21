@@ -1,0 +1,18 @@
+services:
+  backend:
+    # platform: linux/amd64
+    # image: vindsburg/assessment-back
+    image: traefik/whoami
+    container_name: backend
+    expose:
+      - "80"
+
+  frontend:
+    image: vindsburg/assessment-front
+    container_name: frontend
+    ports:
+      - "8080:80"
+    environment:
+      - BACKEND_SERVER=backend:80
+    depends_on:
+      - backend

@@ -1,0 +1,72 @@
+environments:
+  development:
+    secrets:
+      - environments/development/secrets.yaml
+
+---
+
+repositories:
+  - name: hashicorp
+    url: https://helm.releases.hashicorp.com 
+  - name: stakater 
+    url: https://stakater.github.io/stakater-charts 
+
+helmDefaults:
+  atomic: false
+  cascade: background
+  cleanupOnFail: false
+  createNamespace: true
+  devel: false
+  force: false
+  historyMax: 10
+  kubeContext: vin
+  recreatePods: false
+  skipDeps: false
+  timeout: 30 
+  wait: true
+  waitForJobs: false  
+
+releases:
+  - name: vault
+    chart: hashicorp/vault
+    namespace: vault
+    labels:
+      tier: core
+    values:
+      - environments/{{ .Environment.Name}}/vault.yaml
+
+  - name: reloader
+    chart:  stakater/reloader
+    namespace: core
+    labels:
+      tier: core
+
+  - name: devops
+    chart: ./charts/devops
+    namespace: core
+    labels:
+      tier: core
+      type: app
+    values:
+      - db:
+          password: {{ .Values.db.password }}
+
+  - name: backend
+    chart: ./charts/backend
+    namespace: default
+    labels:
+      tier: backend
+      type: app
+    needs: 
+      - vault/vault
+      - core/devops
+
+  - name: frontend
+    chart: ./charts/frontend
+    namespace: default
+    labels:
+      tier: frontend
+      type: app
+    needs:
+      - backend
+

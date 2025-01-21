@@ -1,0 +1,5 @@
+apiVersion: v2
+name: devops
+description: Configuration managed by DevOps team
+type: application
+version: 0.1.0
