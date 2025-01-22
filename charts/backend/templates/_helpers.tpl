@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "application.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | lower }}
+{{- default .Chart.Name .Values.name | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 
 {{/*
@@ -11,10 +11,8 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "application.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if .Values.name }}
+{{- $name := .Values.name| trunc 63 | trimSuffix "-" }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-"  }}
 {{- else }}

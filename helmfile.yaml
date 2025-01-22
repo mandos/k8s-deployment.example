@@ -23,17 +23,30 @@ helmDefaults:
   recreatePods: false
   skipDeps: false
   timeout: 30 
+  # timeout: 300
   wait: true
   waitForJobs: false  
 
 releases:
   - name: vault
     chart: hashicorp/vault
+    version: 0.29.1
     namespace: vault
     labels:
       tier: core
     values:
       - environments/{{ .Environment.Name}}/vault.yaml
+
+  - name: vault-operator
+    chart: hashicorp/vault-secrets-operator
+    version: 0.9.1
+    namespace: vault
+    labels:
+      tier: core
+    values:
+      - environments/{{ .Environment.Name}}/vault-operator.yaml
+    needs:
+      - vault/vault
 
   - name: reloader
     chart:  stakater/reloader
@@ -46,10 +59,33 @@ releases:
     namespace: core
     labels:
       tier: core
-      type: app
     values:
       - db:
           password: {{ .Values.db.password }}
+
+  - name: app1-back
+    chart: ./charts/backend
+    namespace: backend
+    labels:
+      tier: backend
+      instance: app1
+    needs: 
+      - vault/vault-operator
+      - core/devops
+    values:
+      - name: app1-back
+
+  - name: app1-front
+    chart: ./charts/frontend
+    namespace: frontend
+    labels:
+      tier: frontend
+      instance: app1
+    needs:
+      - backend/app1-back
+    values:
+      - name: app1-front
+    
 
   - name: backend
     chart: ./charts/backend
