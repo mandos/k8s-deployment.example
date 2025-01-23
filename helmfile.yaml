@@ -49,6 +49,7 @@ releases:
       - vault/vault
 
   - name: reloader
+    installed: false
     chart:  stakater/reloader
     namespace: core
     labels:
@@ -59,6 +60,7 @@ releases:
     namespace: core
     labels:
       tier: core
+      instance: devops
     values:
       - db:
           password: {{ .Values.db.password }}

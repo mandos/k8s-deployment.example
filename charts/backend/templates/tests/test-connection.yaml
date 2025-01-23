@@ -12,7 +12,7 @@ spec:
       containers:
         - name: backend-verification
           image: {{ .Values.verificationImage.repository }}:{{ .Values.verificationImage.tag }} 
-          args: ['backend:80/api?env=true']
+          args: ['{{ include "application.name" . }}:80/api?env=true']
           imagePullPolicy: IfNotPresent 
       restartPolicy: Never
   backoffLimit: 0

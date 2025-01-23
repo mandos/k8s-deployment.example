@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: backend
+  name: app1-back
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: static-auth
+  namespace: backend
+spec:
+  method: kubernetes
+  mount: vis
+  kubernetes:
+    role: app1
+    serviceAccount: app1-back 
+    audiences:
+      - vault
