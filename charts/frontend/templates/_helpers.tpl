@@ -2,22 +2,17 @@
 Expand the name of the chart.
 */}}
 {{- define "frontend.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | lower }}
+{{- default .Chart.Name .Values.name | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 
-{{- define "frontend.backendName" }}
-{{- include "frontend.name" . }}-back
-{{- end }}
 {{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "frontend.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if .Values.name }}
+{{- $name := .Values.name| trunc 63 | trimSuffix "-" }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-"  }}
 {{- else }}

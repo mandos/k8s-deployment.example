@@ -49,7 +49,7 @@ releases:
       - vault/vault
 
   - name: reloader
-    installed: false
+    installed: true
     chart:  stakater/reloader
     namespace: core
     labels:
@@ -76,6 +76,8 @@ releases:
       - core/devops
     values:
       - name: app1-back
+        secrets:
+          managedBy: vault
 
   - name: app1-front
     chart: ./charts/frontend
@@ -87,24 +89,34 @@ releases:
       - backend/app1-back
     values:
       - name: app1-front
+        backend:
+          url: "app1-back.backend.svc.cluster.local:80"
     
 
-  - name: backend
+  - name: app2-back
     chart: ./charts/backend
-    namespace: default
+    namespace: backend
     labels:
       tier: backend
-      type: app
+      instance: app2
     needs: 
-      - vault/vault
       - core/devops
+    values:
+      - name: app2-back
+        secrets:
+          managedBy: sops
 
-  - name: frontend
+  - name: app2-front
     chart: ./charts/frontend
-    namespace: default
+    namespace: frontend
     labels:
       tier: frontend
-      type: app
+      instance: app2
     needs:
-      - backend
+      - backend/app2-back
+    values:
+      - name: app2-front
+        backend:
+          url: "app2-back.backend.svc.cluster.local:80"
+
 

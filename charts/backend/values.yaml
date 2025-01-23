@@ -10,6 +10,10 @@ imagePullSecrets: []
 # This is to override the chart name.
 name: ""
 
+secrets:
+  # Specifies what is used to managed secerts, allowed values: vault, sops
+  managedBy: ""
+
 #This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
   # Specifies whether a service account should be created
@@ -24,8 +28,7 @@ serviceAccount:
 
 # This is for setting Kubernetes Annotations to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ 
-podAnnotations:
-  reloader.stakater.com/auto: "true"
+podAnnotations: {}
 # This is for setting Kubernetes Labels to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}

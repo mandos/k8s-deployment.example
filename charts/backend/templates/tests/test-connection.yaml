@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ include "application.fullname" . }}-verification"
+  name: "{{ include "backend.fullname" . }}-verification"
   labels:
-    {{- include "application.labels" . | nindent 4 }}
+    {{- include "backend.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test,post-install,post-upgrade
 spec:
@@ -12,7 +12,7 @@ spec:
       containers:
         - name: backend-verification
           image: {{ .Values.verificationImage.repository }}:{{ .Values.verificationImage.tag }} 
-          args: ['{{ include "application.name" . }}:80/api?env=true']
+          args: ['{{ include "backend.name" . }}:80/api?env=true']
           imagePullPolicy: IfNotPresent 
       restartPolicy: Never
   backoffLimit: 0

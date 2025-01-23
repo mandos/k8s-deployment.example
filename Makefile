@@ -32,6 +32,12 @@ install-devops:
 install-app1:
 	helmfile sync --environment=development --selector instance=app1
 
+install-app2:
+	helmfile sync --environment=development --selector instance=app2 
+
+test-install:
+	helmfile test --environment=development
+
 build-backend-verification:
 	docker build -f ./docker/backend-verification/Dockerfile -t mandos22/assessment-back-test:"$(tag)"  ./docker/backend-verification
 

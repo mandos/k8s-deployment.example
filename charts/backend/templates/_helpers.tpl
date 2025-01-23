@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "application.name" -}}
+{{- define "backend.name" -}}
 {{- default .Chart.Name .Values.name | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "application.fullname" -}}
+{{- define "backend.fullname" -}}
 {{- if .Values.name }}
 {{- $name := .Values.name| trunc 63 | trimSuffix "-" }}
 {{- if contains $name .Release.Name }}
@@ -24,16 +24,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "application.chart" -}}
+{{- define "backend.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "application.labels" -}}
-helm.sh/chart: {{ include "application.chart" . }}
-{{ include "application.selectorLabels" . }}
+{{- define "backend.labels" -}}
+helm.sh/chart: {{ include "backend.chart" . }}
+{{ include "backend.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,17 +43,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "application.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "application.name" . }}
+{{- define "backend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "backend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "application.serviceAccountName" -}}
+{{- define "backend.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "application.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "backend.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

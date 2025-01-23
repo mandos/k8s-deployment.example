@@ -1,5 +1,5 @@
 # TODO
 
- - Missing reloading pods for Vault Operator
- - Add front for app1
- - Redeploy app2
+ - Move vault static secret to backend chart
+ - Set testing automatically or not
+
