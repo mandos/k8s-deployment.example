@@ -10,8 +10,8 @@ controller:
         enabled: true
         mount: vis
         keyName: vso-client-cache
-        transitMount: demo-transit
+        transitMount: vis-transit
         kubernetes:
           role: auth-role-operator
-          serviceAccount: vault-secrets-operator-controller-manager
+          serviceAccount: vault-operator-vault-secrets-operator-controller-manager
           tokenAudiences: ["vault"]

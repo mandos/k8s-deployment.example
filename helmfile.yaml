@@ -34,15 +34,18 @@ releases:
     namespace: vault
     labels:
       tier: core
+      app: vault
     values:
       - environments/{{ .Environment.Name}}/vault.yaml
 
   - name: vault-operator
+    # installed: false
     chart: hashicorp/vault-secrets-operator
     version: 0.9.1
     namespace: vault
     labels:
       tier: core
+      app: vault
     values:
       - environments/{{ .Environment.Name}}/vault-operator.yaml
     needs:
@@ -60,7 +63,7 @@ releases:
     namespace: core
     labels:
       tier: core
-      instance: devops
+      app: devops
     values:
       - db:
           password: {{ .Values.db.password }}
@@ -69,8 +72,8 @@ releases:
     chart: ./charts/backend
     namespace: backend
     labels:
-      tier: backend
-      instance: app1
+      tier: apps
+      app: app1
     needs: 
       - vault/vault-operator
       - core/devops
@@ -83,8 +86,8 @@ releases:
     chart: ./charts/frontend
     namespace: frontend
     labels:
-      tier: frontend
-      instance: app1
+      tier: apps
+      app: app1
     needs:
       - backend/app1-back
     values:
@@ -97,8 +100,8 @@ releases:
     chart: ./charts/backend
     namespace: backend
     labels:
-      tier: backend
-      instance: app2
+      tier: apps
+      app: app2
     needs: 
       - core/devops
     values:
@@ -110,8 +113,8 @@ releases:
     chart: ./charts/frontend
     namespace: frontend
     labels:
-      tier: frontend
-      instance: app2
+      tier: apps
+      app: app2
     needs:
       - backend/app2-back
     values:
