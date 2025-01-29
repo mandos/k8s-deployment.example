@@ -12,7 +12,7 @@ EOF
 
 vault policy write database /tmp/database-read.hcl
 
-vault write auth/vis/role/app1 \
+vault write auth/vis/role/app1-back \
     bound_service_account_names=app1-back \
     bound_service_account_namespaces=backend \
     policies=database \

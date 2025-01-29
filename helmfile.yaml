@@ -12,7 +12,7 @@ repositories:
     url: https://stakater.github.io/stakater-charts 
 
 helmDefaults:
-  atomic: false
+  atomic: true
   cascade: background
   cleanupOnFail: false
   createNamespace: true
@@ -69,6 +69,7 @@ releases:
           password: {{ .Values.db.password }}
 
   - name: app1-back
+    # installed: false
     chart: ./charts/backend
     namespace: backend
     labels:
@@ -78,9 +79,13 @@ releases:
       - vault/vault-operator
       - core/devops
     values:
+      - environments/{{ .Environment.Name}}/backend.yaml
       - name: app1-back
         secrets:
           managedBy: vault
+        autoTest: true
+        serviceAccount:
+          create: true
 
   - name: app1-front
     chart: ./charts/frontend
@@ -91,6 +96,7 @@ releases:
     needs:
       - backend/app1-back
     values:
+      - environments/{{ .Environment.Name}}/frontend.yaml
       - name: app1-front
         backend:
           url: "app1-back.backend.svc.cluster.local:80"
@@ -105,6 +111,7 @@ releases:
     needs: 
       - core/devops
     values:
+      - environments/{{ .Environment.Name}}/backend.yaml
       - name: app2-back
         secrets:
           managedBy: sops
@@ -118,6 +125,7 @@ releases:
     needs:
       - backend/app2-back
     values:
+      - environments/{{ .Environment.Name}}/frontend.yaml
       - name: app2-front
         backend:
           url: "app2-back.backend.svc.cluster.local:80"

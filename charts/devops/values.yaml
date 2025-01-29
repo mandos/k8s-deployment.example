@@ -1,4 +1,4 @@
 db:
   host: database
   user: db_user
-  password: ""
+  password: 

@@ -35,12 +35,12 @@ install-all:
 	helmfile sync --environment=development
 
 # Install releases of specific tier
-install-tier tier-name:
-	helmfile sync --environment=development --selector tier={{tier-name}}
+install-tier tier-name helmfile-args='':
+	helmfile sync --environment=development --selector tier={{tier-name}} {{helmfile-args}}
 
 # Install releases of specific app
-install-app app-name:
-	helmfile sync --environment=development --selector app={{app-name}}
+install-app app-name helmfile-args='':
+	helmfile sync --environment=development --selector app={{app-name}} {{helmfile-args}}
 
 # Show diff for all releases
 diff:
@@ -55,8 +55,12 @@ diff-app app-name:
 	helmfile diff --environment=development --selector app={{app-name}}
 
 # Test all releases
-test-install:
+test:
 	helmfile test --environment=development
+
+# Test single app
+test-app app-name:
+	helmfile test --environment=development --selector app={{app-name}}
 
 # Build image to verify backend
 build-backend-verification tag:

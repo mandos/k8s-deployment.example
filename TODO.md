@@ -1,6 +1,6 @@
 # TODO
 
- - Move vault static secret to backend chart
- - Set testing automatically or not
+ - Install Database (Postgresql)
+ - Set Network policies
  - Write documentation
 
