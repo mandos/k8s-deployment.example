@@ -56,10 +56,18 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions: 
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - {{ include "backend.name" . }}
+              weight: 100
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
