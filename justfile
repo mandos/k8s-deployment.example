@@ -8,7 +8,7 @@ verify-dependencies:
 	command -v helmfile
 	command -v minikube
 	command -v docker
-	@echo "Everything is ok."
+	@echo "Everything looks ok."
 
 # Initalize all staff
 init: verify-dependencies init-vault init-helmfile
@@ -24,7 +24,7 @@ init-vault:
  
 # Start Minikube
 start-k8s: verify-dependencies
-	minikube start --profile=vin --nodes=3  --cni=calico --addons=storage-provisioner
+	minikube start --profile=vin --nodes=3  --cni=calico --addons=csi-hostpath-driver --addons=volumesnapshots
 		
 # Stop Minikube
 stop-k8s:
