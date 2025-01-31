@@ -1,27 +1,70 @@
-# 
+# K8s Deployment (Example)
 
-## Setup local testing enviroments localy 
+## Introduction
 
-Requirements (in bracklets versions I used):
+This project demonstrate the deployment of a simple frontend-backend application in Kubernetes.
+
+The objectives of this project are to:
+* Showcase how to use a local Kubernetes environment for development and testing.
+* Introduce tools for deploying a full-stack application and its dependent services to Kubernetes.
+* Explore different approaches to managing secrets in a Kubernetes environment.
+* Enhance network security by implementing **Network Policies**
+
+## Table of Content
+
+* [Local Development Environment](#local-development-environment)
+  * [Requirements](#requirements)
+  * [Setup](#setup)
+  * [Clean Up Development Environment](#clean-up-development-environment)
+* [Deployment Toolset](#deployment-toolset)
+* [Application Stack](#application-stack)
+* [Secrets Management](#secrets-management)
+* [TODO][#todo]
+
+## Local Development Environment
+
+### Requirements
+*The versions in bracklets indicate the ones used by me during development*
 
 * docker engine (v27.3.0)?
 * minikube (v1.34.0)
+* kubectl (v1.31.2) 
 * helmfile (v0.169.0)
 * helm (v3.16.3)
+* helm plugins: 
+  - diff (3.9.13)
+  - secrets (4.6.0)
+* [optional] just (1.37.0)
+
+### Setup
 
 ```sh
     minikube start --profile=vin --nodes=3  --cni=calico --addons=storage-provisioner
     helmfile init
 ```
 
-### Clean up testing enviroment
+### Clean Up Development Environment
 
 ```sh
-    minikube deelete --profile=vin
+    minikube delete --profile=vin
 ```
 
-## Install or update Helm Release
+## Deployment Toolset
+
 
 ```sh
-helmfile sync
+    helmfile sync
 ```
+
+## Application Stack 
+
+## Secrets Management
+
+## TODO
+
+* [ ] Add test for communication with DB
+* [ ] Set Network policies
+* [ ] Add whitelist with paths
+* [ ] Add ingress
+* [ ] Write documentation
+
