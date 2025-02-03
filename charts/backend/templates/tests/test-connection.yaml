@@ -16,7 +16,14 @@ spec:
       containers:
         - name: backend-verification
           image: {{ .Values.verificationImage.repository }}:{{ .Values.verificationImage.tag }} 
-          args: ['{{ include "backend.name" . }}:80/api?env=true']
+          env:
+            - name: BACKEND_HOST
+              value: {{ include "backend.name" . }}
+            - name: BACKEND_PORT
+              value: "80"
+          envFrom:
+            - secretRef:
+                name: {{ include "backend.name" . }}-database
           imagePullPolicy: IfNotPresent 
       restartPolicy: Never
   backoffLimit: 0

@@ -1,3 +1,4 @@
-db: 
-  host: database
-  user: db_user
+postgresql: 
+  host: postgresql.database.svc.cluster.local
+  port: 5432
+  username: postgres

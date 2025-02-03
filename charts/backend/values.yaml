@@ -3,7 +3,7 @@ tag: "latest"
 
 verificationImage:
   repository: docker.io/mandos22/assessment-back-test
-  tag: 4
+  tag: 5
 
 # Give ability to run tests after release, will work only if atomic option is on
 autoTest: false

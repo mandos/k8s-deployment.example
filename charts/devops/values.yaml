@@ -1,4 +1,5 @@
 db:
-  host: database
-  user: db_user
+  host: 
+  port:
+  username:
   password: 

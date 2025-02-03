@@ -1,7 +1,9 @@
 environments:
   development:
+    values:
+      - environments/common.yaml
     secrets:
-      - environments/development/secrets.yaml
+      - environments/development/secrets/postgresql.yaml
 
 ---
 
@@ -75,8 +77,10 @@ releases:
     values:
       - volumePermissions:
           enabled: true
+        passwordUpdateJob:
+          enabled: false
         auth:
-          postgresPassword: secret-pass
+          postgresPassword: {{ .Values.postgresql.masterPassword }}
           audit:
             logConnections: true 
 
@@ -89,7 +93,10 @@ releases:
       app: devops
     values:
       - db:
-          password: {{ .Values.db.password }}
+          host: {{ .Values.postgresql.host }}
+          port: {{ .Values.postgresql.port }}
+          username: {{ .Values.postgresql.username }}
+          password: {{ .Values.postgresql.masterPassword }}
 
 # -------------------- Applications releases  ----------------------------------
   - name: app1-back

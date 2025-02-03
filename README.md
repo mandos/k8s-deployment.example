@@ -63,10 +63,10 @@ The objectives of this project are to:
 
 ## TODO
 
-* [ ] Add test for communication with DB
 * [ ] Set Network policies
 * [ ] Add whitelist with paths
 * [ ] Add ingress
 * [ ] Write documentation
+* [x] Add test for communication with DB
 * [x] Fix soap setup and add init for gpg key
 
