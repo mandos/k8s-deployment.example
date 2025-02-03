@@ -26,7 +26,7 @@ The objectives of this project are to:
 ### Requirements
 *The versions in bracklets indicate the ones used by me during development*
 
-* docker engine (v27.3.0)?
+* docker engine (v27.3.0)
 * minikube (v1.34.0)
 * kubectl (v1.31.2) 
 * helmfile (v0.169.0)
@@ -34,6 +34,7 @@ The objectives of this project are to:
 * helm plugins: 
   - diff (3.9.13)
   - secrets (4.6.0)
+* GnuPG (2.4.5)
 * [optional] just (1.37.0)
 
 ### Setup
@@ -67,4 +68,5 @@ The objectives of this project are to:
 * [ ] Add whitelist with paths
 * [ ] Add ingress
 * [ ] Write documentation
+* [x] Fix soap setup and add init for gpg key
 
