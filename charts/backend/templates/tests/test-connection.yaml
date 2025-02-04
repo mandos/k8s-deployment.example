@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ include "backend.fullname" . }}-verification"
+  name: "{{ include "backend.name" . }}-verification"
   labels:
     {{- include "backend.labels" . | nindent 4 }}
   annotations:
@@ -12,10 +12,13 @@ metadata:
     {{- end }}
 spec:
   template:
+    metadata:
+      labels:
+        {{- include "backend.labels" . | nindent 8 }}
     spec:
       containers:
         - name: backend-verification
-          image: {{ .Values.verificationImage.repository }}:{{ .Values.verificationImage.tag }} 
+          image: "{{ .Values.verificationImage.repository }}:{{ .Values.verificationImage.tag }}"
           env:
             - name: BACKEND_HOST
               value: {{ include "backend.name" . }}

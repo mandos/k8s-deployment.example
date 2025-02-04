@@ -8,7 +8,7 @@ spec:
   method: kubernetes
   mount: vis
   kubernetes:
-    role: {{ .Values.name }}
+    role: {{ include "backend.name" . }}
     serviceAccount: {{ include "backend.serviceAccountName" . }}
     audiences:
       - vault

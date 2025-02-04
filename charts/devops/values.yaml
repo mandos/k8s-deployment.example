@@ -1,5 +1,13 @@
+# Used to create secrets for app2-back
 db:
   host: 
   port:
   username:
   password: 
+
+# Network setup
+network:
+  namespaceIsolation: 
+    - backend
+    - frontend
+    - database

@@ -79,6 +79,11 @@ releases:
           enabled: true
         passwordUpdateJob:
           enabled: false
+        primary:
+          networkPolicy:
+            allowExternal: true
+        #     ingressNSMatchLabels:
+        #       kubernetes.io/metadata.name: backend
         auth:
           postgresPassword: {{ .Values.postgresql.masterPassword }}
           audit:
@@ -111,7 +116,7 @@ releases:
       - core/devops
     values:
       - environments/{{ .Environment.Name}}/backend.yaml
-      - name: app1-back
+      - name: app1
         secrets:
           managedBy: vault
         autoTest: true
@@ -128,7 +133,7 @@ releases:
       - backend/app1-back
     values:
       - environments/{{ .Environment.Name}}/frontend.yaml
-      - name: app1-front
+      - name: app1
         backend:
           url: "app1-back.backend.svc.cluster.local:80"
 
@@ -142,7 +147,7 @@ releases:
       - core/devops
     values:
       - environments/{{ .Environment.Name}}/backend.yaml
-      - name: app2-back
+      - name: app2
         secrets:
           managedBy: sops
 
@@ -156,7 +161,7 @@ releases:
       - backend/app2-back
     values:
       - environments/{{ .Environment.Name}}/frontend.yaml
-      - name: app2-front
+      - name: app2
         backend:
           url: "app2-back.backend.svc.cluster.local:80"
 
