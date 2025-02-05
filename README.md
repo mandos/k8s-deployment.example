@@ -63,12 +63,12 @@ The objectives of this project are to:
 
 ## TODO
 
-* [ ] Add ingress
 * [ ] Add whitelist with paths
 * [ ] Write documentation
 * [ ] Fix persistance storage for Vault
-* [ ] Add separation network policies for backend, frontend and databases(?)
+* [ ] Add separation network policies for backend, frontend and databases(?) namespaces
 * [ ] Hardening network policies for Postgresql
+* [x] Add ingress
 * [x] Set Network policies
 * [x] Add test for communication with DB
 * [x] Fix soap setup and add init for gpg key
