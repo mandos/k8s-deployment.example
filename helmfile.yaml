@@ -149,6 +149,7 @@ releases:
           host: "app1-back.backend.svc.cluster.local:80"
         ingress:
           host: "app1-front.vin-{{ .Environment.Name }}.minikube"
+          adminWhitelist: "192.168.0.0/16"
 
   - name: app2-back
     chart: ./charts/backend
@@ -179,5 +180,6 @@ releases:
           host: "app2-back.backend.svc.cluster.local:80"
         ingress:
           host: "app2-front.vin-{{ .Environment.Name }}.minikube"
+          adminWhitelist: "192.168.0.0/16"
 
 

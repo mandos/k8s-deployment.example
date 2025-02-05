@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "frontend.name" . }}-internal
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.ingress.internalWhitelist | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /api/internal
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ include "frontend.name" . }}
+                port: 
+                  number: 80
+

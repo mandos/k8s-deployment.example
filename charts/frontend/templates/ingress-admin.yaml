@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "frontend.name" . }}-admin
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- if .Values.ingress.adminWhitelist }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.ingress.adminWhitelist | quote }} 
+    {{- else}}
+    {{ fail "ingress.adminWhitelist value should be set"}}
+    {{- end}}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /admin
+            pathType: Prefix
+            backend: 
+              service:
+                name: {{ include "frontend.name" . }}
+                port: 
+                  number: 80
+

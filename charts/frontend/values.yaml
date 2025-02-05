@@ -49,15 +49,12 @@ service:
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: false
-  className: ""
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  className: "nginx"
+  # What DNS name should be used for ingress, for example app2.vin-development.minikube
   host:
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  # Used to restict access to admin area and internal api: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range
+  adminWhitelist: 
+  internalWhitelist: "10.0.0.0/16"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
