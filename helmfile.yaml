@@ -26,8 +26,7 @@ helmDefaults:
   kubeContext: vin-{{ .Environment.Name }}
   recreatePods: false
   skipDeps: false
-  timeout: 30 
-  # timeout: 300
+  timeout: 30
   wait: true
   waitForJobs: false  
 
@@ -69,6 +68,7 @@ releases:
     chart: hashicorp/vault-secrets-operator
     version: 0.9.1
     namespace: vault
+    timeout: 300
     labels:
       tier: core
       app: vault
@@ -146,7 +146,9 @@ releases:
       - environments/{{ .Environment.Name}}/frontend.yaml
       - name: app1
         backend:
-          url: "app1-back.backend.svc.cluster.local:80"
+          host: "app1-back.backend.svc.cluster.local:80"
+        ingress:
+          host: "app1-front.vin-{{ .Environment.Name }}.minikube"
 
   - name: app2-back
     chart: ./charts/backend
@@ -171,9 +173,11 @@ releases:
     needs:
       - backend/app2-back
     values:
-      - environments/{{ .Environment.Name}}/frontend.yaml
+      - environments/{{ .Environment.Name }}/frontend.yaml
       - name: app2
         backend:
-          url: "app2-back.backend.svc.cluster.local:80"
+          host: "app2-back.backend.svc.cluster.local:80"
+        ingress:
+          host: "app2-front.vin-{{ .Environment.Name }}.minikube"
 
 

@@ -36,7 +36,7 @@ spec:
           imagePullPolicy: IfNotPresent 
           env:
             - name: BACKEND_SERVER
-              value: "{{ .Values.backend.url }}"
+              value: "{{ .Values.backend.host }}"
           ports:
             - name: http
               containerPort: 80 

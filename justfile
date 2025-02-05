@@ -37,9 +37,9 @@ import-gpg-keys: _make-tmp-dir
 
 # Create Minikube profile with specific addons
 create-k8s: verify-dependencies
-	minikube start --profile={{profile}} --nodes=3  --cni=calico --addons=csi-hostpath-driver --addons=ingress
+	minikube start --profile={{profile}} --nodes=3  --cni=calico --addons=csi-hostpath-driver --addons=ingress --kubernetes-version=v1.31.0 --cpus 2 --memory 3072
 
-# Delete Minikube proflile
+# Delete Minikube profile
 destroy-k8s: verify-dependencies 
 	minikube delete --profile={{profile}}
  
@@ -52,6 +52,10 @@ start-k8s: verify-dependencies
 stop-k8s:
 	minikube stop --profile={{profile}} 
 
+# Show list of services
+services:
+	minikube service --profile={{profile}} 
+
 # Install all releases
 install-all: 
 	helmfile sync --environment={{environment}}
@@ -63,6 +67,7 @@ install-tier tier-name helmfile-args='':
 # Install releases of specific app
 install-app app-name helmfile-args='':
 	helmfile sync --environment={{environment}} --selector app={{app-name}} {{helmfile-args}}
+
 
 # Show diff for all releases
 diff:
@@ -84,6 +89,10 @@ test:
 test-app app-name:
 	helmfile test --environment={{environment}} --selector app={{app-name}}
 
+# Test if ingress for specific application is working
+test-ingress app-name path='':
+	curl --resolve "{{app-name}}-front.vin-{{environment}}.minikube:80:$( minikube ip --profile {{profile}})" -i http://{{app-name}}-front.vin-{{environment}}.minikube/{{path}}
+
 # Build image to verify backend
 build-backend-verification tag:
 	docker build -f ./docker/backend-verification/Dockerfile -t mandos22/assessment-back-test:"{{tag}}"  ./docker/backend-verification
@@ -91,3 +100,4 @@ build-backend-verification tag:
 # Push to Dockerhubverify backend image
 build-push-backend-verification tag: (build-backend-verification tag)
 	docker push mandos22/assessment-back-test:"{{tag}}"
+

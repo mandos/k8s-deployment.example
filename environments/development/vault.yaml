@@ -12,7 +12,7 @@ server:
   #   targetPort: 8200
 ui:
   enabled: true
-  # serviceType: "LoadBalancer"
+  serviceType: "NodePort"
   # externalPort: 8200
 
 injector:
