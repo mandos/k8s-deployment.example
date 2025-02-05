@@ -8,16 +8,15 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: {{ include "backend.name" . }}
   policyTypes:
-  - Ingress
+    - Ingress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: frontend
-      podSelector:
+    - from:
+      - namespaceSelector:
           matchLabels:
-            app.kubernetes.io/instance: {{ .Values.name }}-front
-    - podSelector:
-          matchLabels:
-            app.kubernetes.io/instance: {{ include "backend.name" . }}
-
+            kubernetes.io/metadata.name: frontend
+        podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Values.name }}-front
+      - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ include "backend.name" . }}
