@@ -1,6 +1,9 @@
+environment := env('ENVIRONMENT', 'development')
+profile := 'vin-' + environment
+
 # Show lis of all commands
 default:
-    @just --list
+	@just --list
 
 # Checking if all necessary applications are installed
 verify-dependencies:
@@ -8,6 +11,7 @@ verify-dependencies:
 	command -v helmfile
 	command -v minikube
 	command -v docker
+	command -v gpg
 	@echo "Everything looks ok."
 
 # Initalize all staff
@@ -24,53 +28,61 @@ init-vault:
 
 # Generate temmporary folder
 _make-tmp-dir:
-    mkdir -p vendors
+	mkdir -p vendors
 
 # Import functional test GPG keys from Sope project
 import-gpg-keys: _make-tmp-dir
-    -git clone --depth=1 https://github.com/getsops/sops.git tmp/sops
-    gpg --import tmp/sops/pgp/sops_functional_tests_key.asc
+	-git clone --depth=1 https://github.com/getsops/sops.git tmp/sops
+	gpg --import tmp/sops/pgp/sops_functional_tests_key.asc
 
+# Create Minikube profile with specific addons
+create-k8s: verify-dependencies
+	minikube start --profile={{profile}} --nodes=3  --cni=calico --addons=csi-hostpath-driver --addons=ingress
+
+# Delete Minikube proflile
+destroy-k8s: verify-dependencies 
+	minikube delete --profile={{profile}}
  
 # Start Minikube
 start-k8s: verify-dependencies
-	minikube start --profile=vin --nodes=3  --cni=calico --addons=csi-hostpath-driver --addons=volumesnapshots
+	minikube profile list | grep {{profile}}
+	minikube start --profile={{profile}} 
 		
 # Stop Minikube
 stop-k8s:
-	minikube stop --profile=vin 
+	minikube stop --profile={{profile}} 
 
 # Install all releases
 install-all: 
-	helmfile sync --environment=development
+	helmfile sync --environment={{environment}}
 
 # Install releases of specific tier
 install-tier tier-name helmfile-args='':
-	helmfile sync --environment=development --selector tier={{tier-name}} {{helmfile-args}}
+	helmfile sync --environment={{environment}} --selector tier={{tier-name}} {{helmfile-args}}
 
 # Install releases of specific app
 install-app app-name helmfile-args='':
-	helmfile sync --environment=development --selector app={{app-name}} {{helmfile-args}}
+	helmfile sync --environment={{environment}} --selector app={{app-name}} {{helmfile-args}}
 
 # Show diff for all releases
 diff:
-	helmfile diff --environment=development
+	helmfile diff --environment={{environment}}
 
 # Show diff for specific tier
 diff-tier tier-name:
-	helmfile diff --environment=development --selector tier={{tier-name}}
+	helmfile diff --environment={{environment}} --selector tier={{tier-name}}
 
 # Show diff for specific app
 diff-app app-name:
-	helmfile diff --environment=development --selector app={{app-name}}
+	helmfile diff --environment={{environment}} --selector app={{app-name}}
 
 # Test all releases
 test:
-	helmfile test --environment=development
+	helmfile test --environment={{environment}}
 
 # Test single app
 test-app app-name:
-	helmfile test --environment=development --selector app={{app-name}}
+	helmfile test --environment={{environment}} --selector app={{app-name}}
 
 # Build image to verify backend
 build-backend-verification tag:
