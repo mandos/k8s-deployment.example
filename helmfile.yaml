@@ -19,7 +19,7 @@ helmDefaults:
   atomic: true
   cascade: background
   cleanupOnFail: false
-  createNamespace: true
+  createNamespace: false
   devel: false
   force: false
   historyMax: 10
@@ -32,11 +32,32 @@ helmDefaults:
   waitForJobs: false  
 
 releases:
-# -------------------- Hashicorp Vault  -----------------------------------------------------------
+# -------------------- DevOps Common configuration -----------------------------
+  - name: devops
+    chart: ./charts/devops
+    namespace: core
+    createNamespace: true
+    labels:
+      tier: core
+      app: devops
+    values:
+      - db:
+          host: {{ .Values.postgresql.host }}
+          port: {{ .Values.postgresql.port }}
+          username: {{ .Values.postgresql.username }}
+          password: {{ .Values.postgresql.masterPassword }}
+        namespaces:
+          - backend
+          - database
+          - frontend
+
+# -------------------- Hashicorp Vault  ----------------------------------------
   - name: vault
     chart: hashicorp/vault
     version: 0.29.1
     namespace: vault
+    createNamespace: true
+    timeout: 300
     labels:
       tier: core
       app: vault
@@ -63,6 +84,8 @@ releases:
     namespace: core
     labels:
       tier: core
+    needs:
+      - core/devops
 
 # -------------------- Postgresql ----------------------------------------------
   - name: postgresql
@@ -74,6 +97,8 @@ releases:
       tier: core
       app: postgresql
     timeout: 300
+    needs:
+      - core/devops
     values:
       - volumePermissions:
           enabled: true
@@ -88,20 +113,6 @@ releases:
           postgresPassword: {{ .Values.postgresql.masterPassword }}
           audit:
             logConnections: true 
-
-# -------------------- DevOps Common configuration -----------------------------
-  - name: devops
-    chart: ./charts/devops
-    namespace: core
-    labels:
-      tier: core
-      app: devops
-    values:
-      - db:
-          host: {{ .Values.postgresql.host }}
-          port: {{ .Values.postgresql.port }}
-          username: {{ .Values.postgresql.username }}
-          password: {{ .Values.postgresql.masterPassword }}
 
 # -------------------- Applications releases  ----------------------------------
   - name: app1-back

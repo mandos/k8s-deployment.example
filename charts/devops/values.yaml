@@ -5,9 +5,5 @@ db:
   username:
   password: 
 
-# Network setup
-network:
-  namespaceIsolation: 
-    - backend
-    - frontend
-    - database
+# Used to create namespaces and network policies to isolate them
+namespaces: []
