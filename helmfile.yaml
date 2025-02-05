@@ -23,7 +23,7 @@ helmDefaults:
   devel: false
   force: false
   historyMax: 10
-  kubeContext: vin
+  kubeContext: vin-{{ .Environment.Name }}
   recreatePods: false
   skipDeps: false
   timeout: 30 
