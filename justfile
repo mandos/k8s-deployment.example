@@ -14,9 +14,6 @@ verify-dependencies:
 	command -v gpg
 	@echo "Everything looks ok."
 
-# Initalize all staff
-init: verify-dependencies init-vault init-helmfile
-
 # Initialize helmfile (helm plugins)
 init-helmfile:
 	helmfile init
@@ -34,6 +31,14 @@ _make-tmp-dir:
 import-gpg-keys: _make-tmp-dir
 	-git clone --depth=1 https://github.com/getsops/sops.git tmp/sops
 	gpg --import tmp/sops/pgp/sops_functional_tests_key.asc
+
+# Create k8s cluster and initialize full local environment (with core services)
+create-all: verify-dependencies
+	just create-k8s
+	just import-gpg-keys
+	just init-helmfile
+	just install-tier core
+	just init
 
 # Create Minikube profile with specific addons
 create-k8s: verify-dependencies

@@ -81,6 +81,7 @@ releases:
   - name: reloader
     # installed: false
     chart: stakater/reloader
+    timeout: 180
     namespace: core
     labels:
       tier: core

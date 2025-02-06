@@ -1,6 +1,15 @@
 # K8s Deployment (Example)
 
+<a name="table-of-content"></a>
 Table of Content:
+* [Introduction](#introduction)
+* [Local Development Environment](#local-development-environment)
+* [Deployment Process and Toolset](#deployment-process-and-toolset)
+* [Architecture](#architecture)
+* [Application Stack](#application-stack)
+* [Secrets Management](#secrets-management)
+* [Create local environment](#create-local-environment)
+* [TODO](#todo)
 
 ## Introduction
 
@@ -11,6 +20,8 @@ The objectives of this project are to:
 * Introduce tools for deploying a full-stack application and its dependent services to Kubernetes.
 * Explore different approaches to managing secrets in a Kubernetes environment.
 * Enhance network security by implementing **Network Policies**
+
+[Back to Table of Content](#table-of-content)
 
 ## Local Development Environment
 
@@ -41,6 +52,8 @@ List of tools *(The versions in bracklets indicate the ones used by me during de
 * kubectl (v1.31.2) 
 * just (1.37.0)
 * k9s (0.32.6)
+
+[Back to Table of Content](#table-of-content)
 
 ## Deployment Process and Toolset
 
@@ -76,6 +89,78 @@ List of tools *(The versions in bracklets indicate the ones used by me during de
   * secrets (4.6.0)
 * GnuPG (2.4.5)
 
+[Back to Table of Content](#table-of-content)
+
+## Architecture
+
+The solution is built on a few key assumptions:
+1. Kubernetes Cluster Provisioning - the Kubernetes cluster is not created by this solution; 
+it is provided externally (in the local environment, this is handled by Minikube).
+2. Preinstalled Services - some services inside the cluster are already preinstalled, including:
+  * CNI Plugin – Calico
+  * CSI Plugin
+  * Ingress Controller – Nginx
+  * CoreDNS
+3. Deployment Responsibilities
+  * Deployments within Kubernetes can be handled by different teams, including DevOps, Frontend, and Backend teams.
+  * This setup provides only a basic structure for team-based deployments. Currently, namespaces are used to separate applications, but roles and role bindings are not yet implemented.
+
+### Service Layer Breakdown
+
+This solution consists of three layers:
+* Kubernetes Control Plane & Core Services – Managed by Minikube.
+* Core Configuration & Infrastructure Services – Managed by the DevOps team.
+* Application Services – Managed by development teams (Frontend & Backend).
+
+```plantuml
+top to bottom direction
+
+frame "Minikube" as minikube {
+    [Control Plane]
+    [Calico]
+    [Storage Plugin]
+    [CoreDNS]
+    [Nginx Ingress Controller]
+} 
+
+frame "Core Services" as core {
+    [DevOps configuration]
+    [Hashicorp Vault]
+    [Reloader]
+    database "Postgresql"
+} 
+
+frame "Application Services" as apps {
+
+    frame backend {
+        [app1-back]
+        [app2-back]
+    }
+
+    frame frontend {
+        [app1-front]
+        [app2-front]
+    }
+} 
+
+minikube - core
+core - apps
+
+[app1-back] -> [app1-front]
+[app2-back] -> [app2-front]
+
+```
+
+[Back to Table of Content](#table-of-content)
+
+## Application Stack 
+
+[Back to Table of Content](#table-of-content)
+
+## Secrets Management
+
+[Back to Table of Content](#table-of-content)
+
 ## Create local environment
 
 Initial setup
@@ -97,9 +182,7 @@ Delete development environment:
     helmfile sync
 ```
 
-## Application Stack 
-
-## Secrets Management
+[Back to Table of Content](#table-of-content)
 
 ## TODO
 
@@ -112,8 +195,7 @@ Delete development environment:
 * [x] Add ingress
 * [x] Set Network policies
 * [x] Add test for communication with DB
-
-
 * [x] Fix soap setup and add init for gpg key
 
+[Back to Table of Content](#table-of-content)
 
