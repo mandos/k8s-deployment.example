@@ -23,12 +23,8 @@ init-vault:
 	kubectl cp --namespace vault ./vault/init.sh vault-0:/tmp/init.sh
 	kubectl exec --namespace vault -i -t vault-0 -c vault -- /tmp/init.sh
 
-# Generate temmporary folder
-_make-tmp-dir:
-	mkdir -p vendors
-
 # Import functional test GPG keys from Sope project
-import-gpg-keys: _make-tmp-dir
+import-gpg-keys: 
 	-git clone --depth=1 https://github.com/getsops/sops.git tmp/sops
 	gpg --import tmp/sops/pgp/sops_functional_tests_key.asc
 

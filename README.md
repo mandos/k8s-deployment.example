@@ -2,24 +2,28 @@
 
 <a name="table-of-content"></a>
 Table of Content:
-* [Introduction](#introduction)
-* [Local Development Environment](#local-development-environment)
-* [Deployment Process and Toolset](#deployment-process-and-toolset)
-* [Architecture](#architecture)
-* [Application Stack](#application-stack)
-* [Secrets Management](#secrets-management)
-* [Create local environment](#create-local-environment)
-* [TODO](#todo)
+- [Introduction](#introduction)
+- [Local Development Environment](#local-development-environment)
+- [Project Structure](#project-structure)
+- [Deployment Process and Toolset](#deployment-process-and-toolset)
+- [Architecture](#architecture)
+   * [Service Layer Breakdown](#service-layer-breakdown)
+- [Application Stack ](#application-stack)
+   * [Helmfile ](#helmfile)
+   * [Services](#services)
+- [Secrets Management](#secrets-management)
+- [Create local environment](#create-local-environment)
+- [TODO](#todo)
 
 ## Introduction
 
 This project demonstrate the deployment of a simple frontend-backend application in Kubernetes.
 
 The objectives of this project are to:
-* Showcase how to use a local Kubernetes environment for development and testing.
-* Introduce tools for deploying a full-stack application and its dependent services to Kubernetes.
-* Explore different approaches to managing secrets in a Kubernetes environment.
-* Enhance network security by implementing **Network Policies**
+- Showcase how to use a local Kubernetes environment for development and testing.
+- Introduce tools for deploying a full-stack application and its dependent services to Kubernetes.
+- Explore different approaches to managing secrets in a Kubernetes environment.
+- Enhance network security by implementing **Network Policies**
 
 [Back to Table of Content](#table-of-content)
 
@@ -47,11 +51,46 @@ All further command examples will include both the *just* version and the origin
 definitions can be found in the [justfile](justfile).
 
 List of tools *(The versions in bracklets indicate the ones used by me during development)*:
-* docker engine (v27.3.0)
-* minikube (v1.34.0) with Kubernetes (v1.31.0)
-* kubectl (v1.31.2) 
-* just (1.37.0)
-* k9s (0.32.6)
+- docker engine (v27.3.0)
+- minikube (v1.34.0) with Kubernetes (v1.31.0)
+- kubectl (v1.31.2) 
+- just (1.37.0)
+- k9s (0.32.6)
+
+[Back to Table of Content](#table-of-content)
+
+## Project Structure
+
+```
+|-- charts
+|   |-- backend
+|   |-- devops
+|   `-- frontend
+|-- docker
+|   `-- backend-verification
+|-- environments
+|   |-- development
+|   |   `-- secrets
+|   `-- common.yaml
+|-- vault
+|-- .sops.yaml
+|-- helmfile.yaml
+|-- justfile
+```
+
+Explanation:
+- *charts/* – Contains custom Helm charts for:
+  * DevOps configuration
+  * Frontend application
+  * Backend application
+- *docker/backend-verification/* – Includes all files needed to build an image for verifying whether the backend service is functioning correctly.
+- *environments/* – Stores environment-specific variables and secrets used as input for Helm releases.
+  * *development/secrets/* – Secrets specific to the development environment.
+  * *common.yaml* – Shared configuration across environments.
+- *vault/* – Contains the initial configuration for HashiCorp Vault, used in the `just init-vault` task.
+- *.sops.yaml* – Configuration file for SOPS (Secrets OPerationS).
+- *helmfile.yaml* – The main configuration file for Helmfile, defining how Helm releases are managed.
+- *justfile* – Contains just task definitions for automating common project tasks.
 
 [Back to Table of Content](#table-of-content)
 
@@ -68,26 +107,26 @@ only full stack but some part's of it. More info about it will be in section [Ap
 
 
 The two main tools in this process are:
-* [Helm](https://helm.sh/) – Manages the installation of individual applications.
-* [Helmfile](https://helmfile.readthedocs.io/) – Manages the entire stack and different environments.
+- [Helm](https://helm.sh/) – Manages the installation of individual applications.
+- [Helmfile](https://helmfile.readthedocs.io/) – Manages the entire stack and different environments.
 
 While I could use Helm alone, Helmfile provides better control over environment-specific 
 variables, secrets, and selective stack deployments (not just full-stack updates). More 
 details can be found in the [Application Stack](#application-stack) section.
 
 For secrets manament, I'm using:
-* [SOPS](https://github.com/getsops/sops)
-* [The GNU Privacy Guard](https://www.gnupg.org/)
+- [SOPS](https://github.com/getsops/sops)
+- [The GNU Privacy Guard](https://www.gnupg.org/)
 
 More details on secrets management are covered in the [Secrets Management](#secrets-management) section.
 
 List of tools *(The versions in bracklets indicate the ones used by me during development)*:
-* helmfile (v0.169.0)
-* helm (v3.16.3)
-* helm plugins:
+- helmfile (v0.169.0)
+- helm (v3.16.3)
+- helm plugins:
   * diff (3.9.13)
   * secrets (4.6.0)
-* GnuPG (2.4.5)
+- GnuPG (2.4.5)
 
 [Back to Table of Content](#table-of-content)
 
@@ -108,9 +147,9 @@ it is provided externally (in the local environment, this is handled by Minikube
 ### Service Layer Breakdown
 
 This solution consists of three layers:
-* Kubernetes Control Plane & Core Services – Managed by Minikube.
-* Core Configuration & Infrastructure Services – Managed by the DevOps team.
-* Application Services – Managed by development teams (Frontend & Backend).
+- Kubernetes Control Plane & Core Services – Managed by Minikube.
+- Core Configuration & Infrastructure Services – Managed by the DevOps team.
+- Application Services – Managed by development teams (Frontend & Backend).
 
 ```mermaid
 flowchart LR 
@@ -151,13 +190,16 @@ end
 
 The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). This encompasses not only the applications that need to be deployed but also:
 
-* Core services that these applications depend on.
-* Generic Kubernetes configurations managed by the DevOps team.
+- Core services that these applications depend on.
+- Generic Kubernetes configurations managed by the DevOps team.
 
 This approach ensures that both application-specific and infrastructure-related components are deployed and maintained in a consistent, automated manner.
 
+[Back to Table of Content](#table-of-content)
+
 ### Helmfile 
 
+[Back to Table of Content](#table-of-content)
 
 ### Services
 
@@ -194,16 +236,16 @@ Delete development environment:
 
 ## TODO
 
-* [ ] Write documentation
-* [ ] Fix persistance storage for Vault (cannot be done with dev)
-* [ ] Add separation namespaces egress policies
-* [ ] Hardening network policies for Postgresql 
-* [x] Add separation network policies for backend, frontend and databases(?) namespaces
-* [x] Add whitelist with paths
-* [x] Add ingress
-* [x] Set Network policies
-* [x] Add test for communication with DB
-* [x] Fix soap setup and add init for gpg key
+- [ ] Write documentation
+- [ ] Fix persistance storage for Vault (cannot be done with dev)
+- [ ] Add separation namespaces egress policies
+- [ ] Hardening network policies for Postgresql 
+- [x] Add separation network policies for backend, frontend and databases(?) namespaces
+- [x] Add whitelist with paths
+- [x] Add ingress
+- [x] Set Network policies
+- [x] Add test for communication with DB
+- [x] Fix soap setup and add init for gpg key
 
 [Back to Table of Content](#table-of-content)
 
