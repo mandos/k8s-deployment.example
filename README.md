@@ -112,48 +112,56 @@ This solution consists of three layers:
 * Core Configuration & Infrastructure Services – Managed by the DevOps team.
 * Application Services – Managed by development teams (Frontend & Backend).
 
-```plantuml
-top to bottom direction
+```mermaid
+flowchart LR 
+subgraph "Minikube Layer"
+  control-plane[Control Plane]
+  cni[Calico CNI]
+  dns[CoreDNS]
+  csi[Storage Controler]
+  ingress[Nginx Ingress Controler]
+end
 
-frame "Minikube" as minikube {
-    [Control Plane]
-    [Calico]
-    [Storage Plugin]
-    [CoreDNS]
-    [Nginx Ingress Controller]
-} 
+subgraph "Core Services"
+  devops[Core DevOps Config]
+  db[(Postgresql)]
+  subgraph "Hashicorp Vault"
+    vault[Vault]
+    operator[Vault Secrets Operator] 
+  end
+end
 
-frame "Core Services" as core {
-    [DevOps configuration]
-    [Hashicorp Vault]
-    [Reloader]
-    database "Postgresql"
-} 
+subgraph "Application Layer"
+  direction TB
+  subgraph app1
+    direction BT 
+    app1back[app1-back] --- app1front[app1-front]
+  end
 
-frame "Application Services" as apps {
-
-    frame backend {
-        [app1-back]
-        [app2-back]
-    }
-
-    frame frontend {
-        [app1-front]
-        [app2-front]
-    }
-} 
-
-minikube - core
-core - apps
-
-[app1-back] -> [app1-front]
-[app2-back] -> [app2-front]
-
+  subgraph app2
+    direction BT 
+    app2back[app2-back] --- app2front[app2-front]
+  end
+end
 ```
 
 [Back to Table of Content](#table-of-content)
 
 ## Application Stack 
+
+The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). This encompasses not only the applications that need to be deployed but also:
+
+* Core services that these applications depend on.
+* Generic Kubernetes configurations managed by the DevOps team.
+
+This approach ensures that both application-specific and infrastructure-related components are deployed and maintained in a consistent, automated manner.
+
+### Helmfile 
+
+
+### Services
+
+This section describes the currently installed services and their purposes.
 
 [Back to Table of Content](#table-of-content)
 
