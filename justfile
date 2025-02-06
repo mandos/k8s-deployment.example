@@ -54,7 +54,7 @@ stop-k8s:
 
 # Show list of services
 services:
-	minikube service --profile={{profile}} 
+	minikube service list --profile={{profile}} 
 
 # Install all releases
 install-all: 
