@@ -161,11 +161,11 @@ More information about testing the backend release can be found in section [Appl
 Setting up the local environment involves multiple tools, making the process somewhat complex. 
 I personally use [NixOS](https://nixos.org/) with [Home Manager](https://nix-community.github.io/home-manager/) to manage this toolset.
 Currently, there is no Nix configuration available for this setup, but it will be added in the future:<br>
-👉 [Add Nix setup with tools for local environment](https://github.com/mandos/k8s-deployment.example/issues/1)
+[Add Nix setup with tools for local environment](https://github.com/mandos/k8s-deployment.example/issues/1)
 
 If you’re not using NixOS, another option is to install Minikube and Docker Engine manually and
 use a pre-built image containing all necessary tools (planned feature):<br>
-👉 [Create image with full toolset](https://github.com/mandos/k8s-deployment.example/issues/2)
+[Create image with full toolset](https://github.com/mandos/k8s-deployment.example/issues/2)
 
 Once all required tools are installed, the local environment can be set up with the following steps:
 
@@ -202,7 +202,7 @@ Destroying local environment is done with: `just destroy-k8s`.
 This means that every time the environment is restarted, Vault must be reconfigured using: `just init-vault`
 
 This issue is planned to be fixed in:<br>
-👉 [Add persistance storage to Vault](https://github.com/mandos/k8s-deployment.example/issues/3)
+[Add persistance storage to Vault](https://github.com/mandos/k8s-deployment.example/issues/3)
 
 [Back to Table of Content](#table-of-content)
 
@@ -310,7 +310,8 @@ Namespaces with their purpose:
 - **backend** - Namespace for the in-house backend applications.
 - **frontend** - Namespace for the in-house frontend applications.
 
-TODO: Add dependency graph
+TODO:<br>
+Add dependency graph
 
 [Back to Table of Content](#table-of-content)
 
@@ -328,8 +329,8 @@ In this setup, the following Vault features are used:
 
 Additionally, Vault Secrets Operator is installed as a complementary service. This enables automatic updates of Kubernetes secrets and, if necessary, triggers deployment rollouts.
 
-TODO:
-👉 [Add persistance storage to Vault](https://github.com/mandos/k8s-deployment.example/issues/3)
+TODO:<br>
+[Add persistance storage to Vault](https://github.com/mandos/k8s-deployment.example/issues/3)
 
 #### Reloader
 
@@ -341,8 +342,8 @@ While I could also use Reloader for **app1**, I intentionally kept the secrets m
 
 A non-HA, basic PostgreSQL installation is used, based on the [Bitnami PostgreSQL Helm chart](https://artifacthub.io/packages/helm/bitnami/postgresql). The setup mostly relies on default values, with minimal modifications, primarily storing the master password in a SOPS-encrypted YAML file for security.
 
-TODO:
-👉 [Hardening network policies for Postgresql](https://github.com/mandos/k8s-deployment.example/issues/5)
+TODO:<br>
+[Hardening network policies for Postgresql](https://github.com/mandos/k8s-deployment.example/issues/5)
 
 [Back to Table of Content](#table-of-content)
 
@@ -363,8 +364,8 @@ This is an example of a basic configuration for a cluster where different teams 
 - **Network Separation** between the database, backend, and frontend namespaces to ensure better isolation.
 - Preparation of **Secrets** containing database parameters for the app2 backend application (part of SOPS secrets management).
 
-TODO: 
-👉 [Add Network separation by egress for namespaces](https://github.com/mandos/k8s-deployment.example/issues/4)
+TODO:<br>
+[Add Network separation by egress for namespaces](https://github.com/mandos/k8s-deployment.example/issues/4)
 
 #### Backend
 

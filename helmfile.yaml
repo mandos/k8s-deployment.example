@@ -128,7 +128,6 @@ releases:
       tier: apps
       app: app1
     needs: 
-      - vault/vault-operator
       - core/devops
     values:
       - environments/{{ .Environment.Name}}/backend.yaml
@@ -136,8 +135,6 @@ releases:
         secrets:
           managedBy: vault
         autoTest: true
-        serviceAccount:
-          create: true
 
   - name: app1-front
     # installed: false
@@ -181,7 +178,6 @@ releases:
     labels:
       tier: apps
       app: app2
-      instance: app2-front
     needs:
       - backend/app2-back
     values:

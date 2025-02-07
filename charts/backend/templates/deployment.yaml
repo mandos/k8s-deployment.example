@@ -37,7 +37,7 @@ spec:
         - name: {{ .Chart.Name | lower }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "traefik/whoami:{{ .Values.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent 
           envFrom:
             - secretRef:
