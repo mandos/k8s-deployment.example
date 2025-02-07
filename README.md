@@ -150,7 +150,7 @@ To verify whether deployments have been successfully completed, I use a combinat
 - **Helm Timeouts and Atomic Updates** – Ensures deployments are rolled back if they fail, and prevents timeouts during updates.
 - **Kubernetes Rollout Policies** – Manages deployment strategies, ensuring the smooth rollout of new versions and handling failures appropriately.
 - **Kubernetes Liveness and Readiness Checks** – Helps Kubernetes determine whether a service is healthy and ready to serve traffic.
-- **Helm Test Feature** – Runs tests to validate the deployment once it’s finished, ensuring everything is working as expected.
+- **Helm Test Feature** – Runs post-deployment tests to validate functionality. If a test fails, rollback is handled manually by the Release Manager.
 
 More information about testing the backend release can be found in section [Application Stack -> In-House Services -> Backend](#backend)
 
@@ -275,6 +275,7 @@ subgraph "Core Services"
     vault[Vault]
     operator[Vault Secrets Operator] 
   end
+  reloader[Reloader]
 end
 
 subgraph "Application Layer"
@@ -302,6 +303,33 @@ The Application Stack includes all releases managed by Helmfile (see [helmfile.y
 
 This approach ensures that both application-specific and infrastructure-related components are deployed and maintained in a consistent, automated manner. To have better control, I utilize namespaces. In the current setup, this helps improve network isolation and organization within the cluster.
 
+
+Dependecies between Helm releases:
+
+```mermaid
+flowchart BT
+
+subgraph "Core Services"
+  vault --> devops
+  vault-operator --> vault
+  reloader --> devops
+  postgresql --> devops
+end
+
+
+subgraph "Application Layer"
+  app1-back --> devops
+  app1-back -.-> vault-operator
+  app1-front --> app1-back
+
+  app2-back --> devops
+  app2-front --> app2-back
+end
+```
+
+- Solid lines indicate hard dependencies, meaning *helmfile* will enforce their installation order.
+- Dotted lines represent soft dependencies, where the dependent service is still required, but *helmfile* doesn’t explicitly manage the relationship.
+
 Namespaces with their purpose: 
 
 - **core** - Contains the DevOps chart release, managing Kubernetes configuration and minor core services (e.g., reloader).
@@ -309,9 +337,6 @@ Namespaces with their purpose:
 - **vault** - Dedicated to HashiCorp Vault and HashiCorp Secrets Operator.
 - **backend** - Namespace for the in-house backend applications.
 - **frontend** - Namespace for the in-house frontend applications.
-
-TODO:<br>
-Add dependency graph
 
 [Back to Table of Content](#table-of-content)
 
@@ -369,7 +394,13 @@ TODO:<br>
 
 #### Backend
 
+This is the most complex chart I created for this project. It also serves as a test to verify integration with database. The release includes its own test job and additional Vault integration configurations.
+
+The service uses a simple web server based on [traeffic/whoami](https://github.com/traefik/whoami), which is written in Go. This tool is ideal for testing requests and environment variables, making it a perfect fit for this project.
+
 #### Frontend
+
+Frontend application is simple Nginx proxy with configuration pointing to Backend servers. 
 
 
 [Back to Table of Content](#table-of-content)

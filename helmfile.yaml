@@ -64,6 +64,8 @@ releases:
       app: vault
     values:
       - environments/{{ .Environment.Name}}/vault.yaml
+    needs:
+      - core/devops
 
   - name: vault-operator
     # installed: false
