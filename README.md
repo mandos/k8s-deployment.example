@@ -6,13 +6,20 @@ Table of Content:
 - [Local Development Environment](#local-development-environment)
 - [Project Structure](#project-structure)
 - [Deployment Process and Toolset](#deployment-process-and-toolset)
+- [Build and Using Local Environment](#build-and-using-local-environment)
+- [Helmfile Reasoning](#helmfile-reasoning)
 - [Architecture](#architecture)
    * [Service Layer Breakdown](#service-layer-breakdown)
 - [Application Stack ](#application-stack)
-   * [Helmfile ](#helmfile)
-   * [Services](#services)
+   * [External Services](#external-services)
+      + [HashiCorp Vault](#hashicorp-vault)
+      + [Reloader](#reloader)
+      + [PostgreSQL](#postgresql)
+   * [In-House Services](#in-house-services)
+      + [DevOps](#devops)
+      + [Backend](#backend)
+      + [Frontend](#frontend)
 - [Secrets Management](#secrets-management)
-- [Create local environment](#create-local-environment)
 - [TODO](#todo)
 
 ## Introduction
@@ -188,7 +195,7 @@ This issue is planned to be fixed in:<br>
 
 [Back to Table of Content](#table-of-content)
 
-## Helmfile 
+## Helmfile Reasoning
 
 This section describes the main reasoning behind choosing Helmfile as the primary tool for deploying 
 the application stack. The goal was to deploy multiple Helm charts, currently nine, including 
@@ -277,22 +284,81 @@ end
 
 ## Application Stack 
 
-The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). This encompasses not only the applications that need to be deployed but also:
+The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). 
+This encompasses not only the applications that need to be deployed but also:
 
 - Core services that these applications depend on.
 - Generic Kubernetes configurations managed by the DevOps team.
 
-This approach ensures that both application-specific and infrastructure-related components are deployed and maintained in a consistent, automated manner.
+This approach ensures that both application-specific and infrastructure-related components are deployed 
+and maintained in a consistent, automated manner. To have better control, I utilize namespaces. 
+In the current setup, this helps improve network isolation and organization within the cluster.
+
+Namespaces with their purpose: 
+
+- **core** - Contains the DevOps chart release, managing Kubernetes configuration and minor core services (e.g., reloader).
+- **database** - PostgreSQL installation
+- **vault** - Dedicated to HashiCorp Vault and HashiCorp Secrets Operator.
+- **backend** - Namespace for the in-house backend applications.
+- **frontend** - Namespace for the in-house frontend applications.
+
+TODO: Add dependency graph
 
 [Back to Table of Content](#table-of-content)
 
-### Services
+### External Services
 
-This section describes the currently installed services and their purposes.
+#### HashiCorp Vault
+
+As part of secrets management for **app1** application, I implemented a solution based on 
+[HashiCorp Vault](https://developer.hashicorp.com/vault/docs?product_intent=vault). 
+This installation is minimal, and for simplicity, I am currently using dev mode, which requires 
+reconfiguring Vault every time the Local Dev Environment is started.
+
+In this setup, the following Vault features are used:
+
+- [Key/Value v2 secret engine](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2) – Stores secrets, such as database credentials.
+- [Kubernetes auth method](https://developer.hashicorp.com/vault/docs/auth/kubernetes) – Allows Kubernetes to authenticate with Vault and update secrets.
+- [Transit secret engine](https://developer.hashicorp.com/vault/docs/secrets/transit)– Provides encryption for Vault Secrets Operator.
+
+Additionally, Vault Secrets Operator is installed as a complementary service. 
+This enables automatic updates of Kubernetes secrets and, if necessary, triggers deployment rollouts.
+
+#### Reloader
+
+[Reloader](https://github.com/stakater/Reloader) is required as part of the SOPS-based secrets management solution for **app2**. 
+This lightweight service automatically triggers deployment rollouts whenever *ConfigMaps* or *Secrets* change.
+
+While I could also use Reloader for **app1**, I intentionally kept the secrets management 
+solutions separate to maintain clear boundaries between different approaches.
+
+#### PostgreSQL
+
+A non-HA, basic PostgreSQL installation is used, based on the [Bitnami PostgreSQL Helm chart](https://artifacthub.io/packages/helm/bitnami/postgresql). 
+The setup mostly relies on default values, with minimal modifications, primarily storing 
+the master password in a SOPS-encrypted YAML file for security.
+
+[Back to Table of Content](#table-of-content)
+
+### In-House Services
+
+#### DevOps
+
+TODO
+
+#### Backend
+
+TODO
+
+#### Frontend
+
+TODO
 
 [Back to Table of Content](#table-of-content)
 
 ## Secrets Management
+
+TODO
 
 [Back to Table of Content](#table-of-content)
 
