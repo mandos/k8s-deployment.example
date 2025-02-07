@@ -25,8 +25,7 @@ init-vault:
 
 # Import functional test GPG keys from Sope project
 import-gpg-keys: 
-	-git clone --depth=1 https://github.com/getsops/sops.git tmp/sops
-	gpg --import tmp/sops/pgp/sops_functional_tests_key.asc
+	gpg --import sops/sops_functional_tests_key.asc
 
 # Create k8s cluster and initialize full local environment (with core services)
 create-environment: verify-dependencies

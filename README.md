@@ -74,6 +74,7 @@ List of tools *(The versions in bracklets indicate the ones used by me during de
 |   |-- development
 |   |   `-- secrets
 |   `-- common.yaml
+|-- sops
 |-- vault
 |-- .sops.yaml
 |-- helmfile.yaml
@@ -90,6 +91,7 @@ Explanation:
 - *environments/* – Stores environment-specific variables and secrets used as input for Helm releases.
   * *development/secrets/* – Secrets specific to the development environment.
   * *common.yaml* – Shared configuration across environments.
+- *sops/* – Contains GPG keys.
 - *vault/* – Contains the initial configuration for HashiCorp Vault, used in the `just init-vault` task.
 - *.sops.yaml* – Configuration file for SOPS (Secrets OPerationS).
 - *helmfile.yaml* – The main configuration file for Helmfile, defining how Helm releases are managed.
@@ -175,8 +177,8 @@ After setting up the environment, applications can be installed with:
 ```
 At this point, the local environment is fully configured and ready for use.
 
-Should down environment can be done with `just stop-k8s` and run it again with. 
 Shutting down the environment can be done with: `just stop-k8s`. It can be restarted later with: `just start k8s`.
+Destroying local environment is done with: `just destroy-k8s`.
 
 **Important note**: Since *HashiCorp Vault* is running in dev mode, there is no persistent storage. 
 This means that every time the environment is restarted, Vault must be reconfigured using: `just init-vault`
@@ -264,29 +266,6 @@ This section describes the currently installed services and their purposes.
 [Back to Table of Content](#table-of-content)
 
 ## Secrets Management
-
-[Back to Table of Content](#table-of-content)
-
-## Create local environment
-
-Initial setup
-
-```sh
-    $ just create-k8s
-    or
-    $ minikube start --profile={{profile}} --nodes=3  --cni=calico --addons=csi-hostpath-driver --addons=ingress --kubernetes-version=v1.31.0 --cpus 2 --memory 3072
-```
-
-Delete development environment:
-```sh
-    $ just delete-k8s
-    or
-    $ minikube delete --profile=vin-development
-```
-
-```sh
-    helmfile sync
-```
 
 [Back to Table of Content](#table-of-content)
 
