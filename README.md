@@ -20,6 +20,7 @@ Table of Content:
 This project demonstrate the deployment of a simple frontend-backend application in Kubernetes.
 
 The objectives of this project are to:
+
 - Showcase how to use a local Kubernetes environment for development and testing.
 - Introduce tools for deploying a full-stack application and its dependent services to Kubernetes.
 - Explore different approaches to managing secrets in a Kubernetes environment.
@@ -51,6 +52,7 @@ All further command examples will include both the *just* version and the origin
 definitions can be found in the [justfile](justfile).
 
 List of tools *(The versions in bracklets indicate the ones used by me during development)*:
+
 - docker engine (v27.3.0)
 - minikube (v1.34.0) with Kubernetes (v1.31.0)
 - kubectl (v1.31.2) 
@@ -79,6 +81,7 @@ List of tools *(The versions in bracklets indicate the ones used by me during de
 ```
 
 Explanation:
+
 - *charts/* – Contains custom Helm charts for:
   * DevOps configuration
   * Frontend application
@@ -107,6 +110,7 @@ only full stack but some part's of it. More info about it will be in section [Ap
 
 
 The two main tools in this process are:
+
 - [Helm](https://helm.sh/) – Manages the installation of individual applications.
 - [Helmfile](https://helmfile.readthedocs.io/) – Manages the entire stack and different environments.
 
@@ -115,18 +119,70 @@ variables, secrets, and selective stack deployments (not just full-stack updates
 details can be found in the [Application Stack](#application-stack) section.
 
 For secrets manament, I'm using:
+
 - [SOPS](https://github.com/getsops/sops)
 - [The GNU Privacy Guard](https://www.gnupg.org/)
 
 More details on secrets management are covered in the [Secrets Management](#secrets-management) section.
 
 List of tools *(The versions in bracklets indicate the ones used by me during development)*:
+
 - helmfile (v0.169.0)
 - helm (v3.16.3)
 - helm plugins:
   * diff (3.9.13)
   * secrets (4.6.0)
 - GnuPG (2.4.5)
+
+[Back to Table of Content](#table-of-content)
+
+## Build and Using Local Environment
+
+Setting up the local environment involves multiple tools, making the process somewhat complex. 
+I personally use [NixOS](https://nixos.org/) with [Home Manager](https://nix-community.github.io/home-manager/) to manage this toolset.
+Currently, there is no Nix configuration available for this setup, but it will be added in the future:<br>
+👉 [Add Nix setup with tools for local environment](https://github.com/mandos/k8s-deployment.example/issues/1)
+
+If you’re not using NixOS, another option is to install Minikube and Docker Engine manually and
+use a pre-built image containing all necessary tools (planned feature):<br>
+👉 [Create image with full toolset](https://github.com/mandos/k8s-deployment.example/issues/2)
+
+Once all required tools are installed, the local environment can be set up with the following steps:
+
+1. Create a Minikube Cluster: `just create-k8s`<br>
+   This creates a 3-node Kubernetes clster (v1.31.0) with Calico CNI, Nginx Ingress Controller and CSI Plugin. 
+   Each node is allocated 2 CPUs and 3072 MB RAM.  
+2. Initialize Helmfile: `just init-helmfile`<br> 
+   Check Helmfile settings and installs neccessary Helm plugins.
+3. Import GPG Keys: `just import-gpg-keys`<br> 
+   One of solution I'm using for secrets management is SOPS with encription using GPG, this is why we need
+   add these keys to local keyring. As side notes, these keys are from SOPS project and are used for
+   functional testing.
+   Sinsce *SOPS* is used for secrets management (with GPG encription), this step adds the requiered GPG keys
+   to the local keyring. The provided keys are from the SOPS project and are used for functional testing.
+4. Install Core Services: `just install-tier core`<br>
+   Installs Kubernetes configuration and supporting services inside the cluster.
+5. Configure HashiCorp Vault: `just init-vault`<br> 
+   Sets up HashiCorp Vault with the required configuration for secret management.
+
+Instead of running these commands separately, a single command can be used to execute all steps: `just create-environment`.
+
+After setting up the environment, applications can be installed with:
+```sh
+  just install-app app1
+  just install-app app2
+  just install-tier apps
+```
+At this point, the local environment is fully configured and ready for use.
+
+Should down environment can be done with `just stop-k8s` and run it again with. 
+Shutting down the environment can be done with: `just stop-k8s`. It can be restarted later with: `just start k8s`.
+
+**Important note**: Since *HashiCorp Vault* is running in dev mode, there is no persistent storage. 
+This means that every time the environment is restarted, Vault must be reconfigured using: `just init-vault`
+
+This issue is planned to be fixed in:<br>
+👉 [Add persistance storage to Vault](https://github.com/mandos/k8s-deployment.example/issues/3)
 
 [Back to Table of Content](#table-of-content)
 
@@ -164,7 +220,7 @@ end
 subgraph "Core Services"
   devops[Core DevOps Config]
   db[(Postgresql)]
-  subgraph "Hashicorp Vault"
+  subgraph "HashiCorp Vault"
     vault[Vault]
     operator[Vault Secrets Operator] 
   end
@@ -237,15 +293,7 @@ Delete development environment:
 ## TODO
 
 - [ ] Write documentation
-- [ ] Fix persistance storage for Vault (cannot be done with dev)
 - [ ] Add separation namespaces egress policies
 - [ ] Hardening network policies for Postgresql 
-- [x] Add separation network policies for backend, frontend and databases(?) namespaces
-- [x] Add whitelist with paths
-- [x] Add ingress
-- [x] Set Network policies
-- [x] Add test for communication with DB
-- [x] Fix soap setup and add init for gpg key
 
 [Back to Table of Content](#table-of-content)
-

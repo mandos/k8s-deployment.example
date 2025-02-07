@@ -29,12 +29,12 @@ import-gpg-keys:
 	gpg --import tmp/sops/pgp/sops_functional_tests_key.asc
 
 # Create k8s cluster and initialize full local environment (with core services)
-create-all: verify-dependencies
+create-environment: verify-dependencies
 	just create-k8s
-	just import-gpg-keys
 	just init-helmfile
+	just import-gpg-keys
 	just install-tier core
-	just init
+	just init-vault
 
 # Create Minikube profile with specific addons
 create-k8s: verify-dependencies
