@@ -62,11 +62,11 @@ install-all:
 
 # Install releases of specific tier
 install-tier tier-name helmfile-args='':
-	helmfile sync --environment={{environment}} --selector tier={{tier-name}} {{helmfile-args}}
+	helmfile sync --environment={{environment}} --selector tier={{tier-name}} {{helmfile-args}} --include-transitive-needs
 
 # Install releases of specific app
 install-app app-name helmfile-args='':
-	helmfile sync --environment={{environment}} --selector app={{app-name}} {{helmfile-args}}
+	helmfile sync --environment={{environment}} --selector app={{app-name}} {{helmfile-args}} --include-transitive-needs
 
 
 # Show diff for all releases
