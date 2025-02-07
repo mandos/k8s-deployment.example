@@ -6,6 +6,7 @@ Table of Content:
 - [Local Development Environment](#local-development-environment)
 - [Project Structure](#project-structure)
 - [Deployment Process and Toolset](#deployment-process-and-toolset)
+   * [Deployment Verification](#deployment-verification)
 - [Build and Using Local Environment](#build-and-using-local-environment)
 - [Helmfile Reasoning](#helmfile-reasoning)
 - [Architecture](#architecture)
@@ -20,7 +21,6 @@ Table of Content:
       + [Backend](#backend)
       + [Frontend](#frontend)
 - [Secrets Management](#secrets-management)
-- [TODO](#todo)
 
 ## Introduction
 
@@ -142,6 +142,17 @@ List of tools *(The versions in bracklets indicate the ones used by me during de
   * diff (3.9.13)
   * secrets (4.6.0)
 - GnuPG (2.4.5)
+
+### Deployment Verification
+
+To verify whether deployments have been successfully completed, I use a combination of built-in Helm mechanisms and Kubernetes configuration:
+
+- **Helm Timeouts and Atomic Updates** – Ensures deployments are rolled back if they fail, and prevents timeouts during updates.
+- **Kubernetes Rollout Policies** – Manages deployment strategies, ensuring the smooth rollout of new versions and handling failures appropriately.
+- **Kubernetes Liveness and Readiness Checks** – Helps Kubernetes determine whether a service is healthy and ready to serve traffic.
+- **Helm Test Feature** – Runs tests to validate the deployment once it’s finished, ensuring everything is working as expected.
+
+More information about testing the backend release can be found in section [Application Stack -> In-House Services -> Backend](#backend)
 
 [Back to Table of Content](#table-of-content)
 
@@ -284,15 +295,12 @@ end
 
 ## Application Stack 
 
-The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). 
-This encompasses not only the applications that need to be deployed but also:
+The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). This encompasses not only the applications that need to be deployed but also:
 
 - Core services that these applications depend on.
 - Generic Kubernetes configurations managed by the DevOps team.
 
-This approach ensures that both application-specific and infrastructure-related components are deployed 
-and maintained in a consistent, automated manner. To have better control, I utilize namespaces. 
-In the current setup, this helps improve network isolation and organization within the cluster.
+This approach ensures that both application-specific and infrastructure-related components are deployed and maintained in a consistent, automated manner. To have better control, I utilize namespaces. In the current setup, this helps improve network isolation and organization within the cluster.
 
 Namespaces with their purpose: 
 
@@ -310,10 +318,7 @@ TODO: Add dependency graph
 
 #### HashiCorp Vault
 
-As part of secrets management for **app1** application, I implemented a solution based on 
-[HashiCorp Vault](https://developer.hashicorp.com/vault/docs?product_intent=vault). 
-This installation is minimal, and for simplicity, I am currently using dev mode, which requires 
-reconfiguring Vault every time the Local Dev Environment is started.
+As part of secrets management for **app1** application, I implemented a solution based on [HashiCorp Vault](https://developer.hashicorp.com/vault/docs?product_intent=vault). This installation is minimal, and for simplicity, I am currently using dev mode, which requires reconfiguring Vault every time the Local Dev Environment is started.
 
 In this setup, the following Vault features are used:
 
@@ -321,38 +326,50 @@ In this setup, the following Vault features are used:
 - [Kubernetes auth method](https://developer.hashicorp.com/vault/docs/auth/kubernetes) – Allows Kubernetes to authenticate with Vault and update secrets.
 - [Transit secret engine](https://developer.hashicorp.com/vault/docs/secrets/transit)– Provides encryption for Vault Secrets Operator.
 
-Additionally, Vault Secrets Operator is installed as a complementary service. 
-This enables automatic updates of Kubernetes secrets and, if necessary, triggers deployment rollouts.
+Additionally, Vault Secrets Operator is installed as a complementary service. This enables automatic updates of Kubernetes secrets and, if necessary, triggers deployment rollouts.
+
+TODO:
+👉 [Add persistance storage to Vault](https://github.com/mandos/k8s-deployment.example/issues/3)
 
 #### Reloader
 
-[Reloader](https://github.com/stakater/Reloader) is required as part of the SOPS-based secrets management solution for **app2**. 
-This lightweight service automatically triggers deployment rollouts whenever *ConfigMaps* or *Secrets* change.
+[Reloader](https://github.com/stakater/Reloader) is required as part of the SOPS-based secrets management solution for **app2**. This lightweight service automatically triggers deployment rollouts whenever *ConfigMaps* or *Secrets* change.
 
-While I could also use Reloader for **app1**, I intentionally kept the secrets management 
-solutions separate to maintain clear boundaries between different approaches.
+While I could also use Reloader for **app1**, I intentionally kept the secrets management solutions separate to maintain clear boundaries between different approaches.
 
 #### PostgreSQL
 
-A non-HA, basic PostgreSQL installation is used, based on the [Bitnami PostgreSQL Helm chart](https://artifacthub.io/packages/helm/bitnami/postgresql). 
-The setup mostly relies on default values, with minimal modifications, primarily storing 
-the master password in a SOPS-encrypted YAML file for security.
+A non-HA, basic PostgreSQL installation is used, based on the [Bitnami PostgreSQL Helm chart](https://artifacthub.io/packages/helm/bitnami/postgresql). The setup mostly relies on default values, with minimal modifications, primarily storing the master password in a SOPS-encrypted YAML file for security.
+
+TODO:
+👉 [Hardening network policies for Postgresql](https://github.com/mandos/k8s-deployment.example/issues/5)
 
 [Back to Table of Content](#table-of-content)
 
 ### In-House Services
 
+All charts are created following the [YAGNI principle](https://en.wikipedia.org/wiki/You_aren't_gonna_need_it) to keep them minimal and focused.
+
+- The DevOps chart was built from scratch.
+- The Backend and Frontend charts were initially generated using helm create and then customized as needed.
+- [JSONSchema validation](https://helm.sh/docs/faq/changes_since_helm2/#validating-chart-values-with-jsonschema) has not been added yet, but if the number of input values increases, it will be the preferred way to prevent common misconfigurations.
+
 #### DevOps
 
-TODO
+This is an example of a basic configuration for a cluster where different teams can deploy and manage their own applications. Due to namespace separation, we can configure settings for different teams or application types. In the current version of the chart, I manage the following:
+
+- **Namespaces** for the database, backend, and frontend applications.
+- **Limit Ranges** for the backend and frontend to enforce resource usage limits.
+- **Network Separation** between the database, backend, and frontend namespaces to ensure better isolation.
+- Preparation of **Secrets** containing database parameters for the app2 backend application (part of SOPS secrets management).
+
+TODO: 
+👉 [Add Network separation by egress for namespaces](https://github.com/mandos/k8s-deployment.example/issues/4)
 
 #### Backend
 
-TODO
-
 #### Frontend
 
-TODO
 
 [Back to Table of Content](#table-of-content)
 
@@ -362,10 +379,3 @@ TODO
 
 [Back to Table of Content](#table-of-content)
 
-## TODO
-
-- [ ] Write documentation
-- [ ] Add separation namespaces egress policies
-- [ ] Hardening network policies for Postgresql 
-
-[Back to Table of Content](#table-of-content)
