@@ -188,6 +188,35 @@ This issue is planned to be fixed in:<br>
 
 [Back to Table of Content](#table-of-content)
 
+## Helmfile 
+
+This section describes the main reasoning behind choosing Helmfile as the primary tool for deploying 
+the application stack. The goal was to deploy multiple Helm charts, currently nine, including 
+both external and in-house charts. The applications depend on each other, require secrets management, 
+and need a flexible deployment process that allows full or partial redeployment.
+
+Using raw Helm alone comes with challenges:
+
+- Installing all charts separately leads to dependency issues at the application level and complicates values management
+- Using an umbrella chart for the full stack is not scalable, as it always deploys everything at once without an option for partial updates
+- A mixed approach, some umbrella charts and some standalone, reduces some issues but does not fully eliminate them
+
+How Helmfile solves these issues:
+
+- **Application dependencies.** The needs key in a release allows defining dependencies between services, 
+  ensuring they are installed in the correct order. For example, the frontend depends on the backend, 
+  so Helmfile ensures they are deployed accordingly
+- **Partial deployment.** Labels enable selective deployment of services. The configuration includes two labels
+  *tier* (core and apps) and  *app* (devops, app1, app2, vault, postgresql, reloader). <br>
+  This allows deploying specific apps with `just install-app app1` or entire core services with `just install-tier core`
+- **Secrets management.** Helmfile seamlessly integrates with the Helm Secrets plugin
+- **Environment and values management.** Values files can be structured by environments (development, staging, production), services (backend, frontend) and shared configurations (common.yaml). In this project, only the development environment is used, but the structure supports easy expansion
+- **Fine-tuned release configuration.** I can customise specific releases. For example *devops*, *vault*, and *postgresql*, create their own namespaces. *postgresql* and *vault* have longer timeouts to accommodate their setup, etc.
+
+This approach makes deployments more manageable, scalable, and flexible, ensuring efficient development and operations
+
+[Back to Table of Content](#table-of-content)
+
 ## Architecture
 
 The solution is built on a few key assumptions:
@@ -201,6 +230,8 @@ it is provided externally (in the local environment, this is handled by Minikube
 3. Deployment Responsibilities
   * Deployments within Kubernetes can be handled by different teams, including DevOps, Frontend, and Backend teams.
   * This setup provides only a basic structure for team-based deployments. Currently, namespaces are used to separate applications, but roles and role bindings are not yet implemented.
+
+[Back to Table of Content](#table-of-content)
 
 ### Service Layer Breakdown
 
@@ -252,10 +283,6 @@ The Application Stack includes all releases managed by Helmfile (see [helmfile.y
 - Generic Kubernetes configurations managed by the DevOps team.
 
 This approach ensures that both application-specific and infrastructure-related components are deployed and maintained in a consistent, automated manner.
-
-[Back to Table of Content](#table-of-content)
-
-### Helmfile 
 
 [Back to Table of Content](#table-of-content)
 

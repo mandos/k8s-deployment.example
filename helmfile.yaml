@@ -33,6 +33,7 @@ helmDefaults:
 releases:
 # -------------------- DevOps Common configuration -----------------------------
   - name: devops
+    # installed: false
     chart: ./charts/devops
     namespace: core
     createNamespace: true
@@ -52,6 +53,7 @@ releases:
 
 # -------------------- Hashicorp Vault  ----------------------------------------
   - name: vault
+    # installed: false
     chart: hashicorp/vault
     version: 0.29.1
     namespace: vault
@@ -85,6 +87,7 @@ releases:
     namespace: core
     labels:
       tier: core
+      app: reloader
     needs:
       - core/devops
 
@@ -116,6 +119,7 @@ releases:
             logConnections: true 
 
 # -------------------- Applications releases  ----------------------------------
+# -------------------- Application app1  ---------------------------------------
   - name: app1-back
     # installed: false
     chart: ./charts/backend
@@ -136,6 +140,7 @@ releases:
           create: true
 
   - name: app1-front
+    # installed: false
     chart: ./charts/frontend
     namespace: frontend
     labels:
@@ -152,7 +157,10 @@ releases:
           host: "app1-front.vin-{{ .Environment.Name }}.minikube"
           adminWhitelist: "192.168.0.0/16"
 
+# -------------------- Application app2  ---------------------------------------
+
   - name: app2-back
+    # installed: false
     chart: ./charts/backend
     namespace: backend
     labels:
@@ -167,11 +175,13 @@ releases:
           managedBy: sops
 
   - name: app2-front
+    # installed: false
     chart: ./charts/frontend
     namespace: frontend
     labels:
       tier: apps
       app: app2
+      instance: app2-front
     needs:
       - backend/app2-back
     values:
