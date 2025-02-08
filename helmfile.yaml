@@ -14,6 +14,8 @@ repositories:
     url: https://charts.bitnami.com/bitnami
   - name: stakater 
     url: https://stakater.github.io/stakater-charts 
+  - name: metrics-server
+    url: https://kubernetes-sigs.github.io/metrics-server
 
 helmDefaults:
   atomic: true
@@ -51,6 +53,20 @@ releases:
           - database
           - frontend
 
+# -------------------- Metrics Server ------------------------------------------
+  - name: metrics-server
+    # installed: false
+    chart: metrics-server/metrics-server
+    namespace: core
+    labels:
+      tier: core
+      app: metrics-server
+    needs:
+      - core/devops
+    values:
+      - args: 
+        - "--kubelet-insecure-tls"
+
 # -------------------- Hashicorp Vault  ----------------------------------------
   - name: vault
     # installed: false
@@ -62,10 +78,10 @@ releases:
     labels:
       tier: core
       app: vault
-    values:
-      - environments/{{ .Environment.Name}}/vault.yaml
     needs:
       - core/devops
+    values:
+      - environments/{{ .Environment.Name}}/vault.yaml
 
   - name: vault-operator
     # installed: false
@@ -172,6 +188,8 @@ releases:
       - name: app2
         secrets:
           managedBy: sops
+        autoscaling: 
+          enabled: true
 
   - name: app2-front
     # installed: false

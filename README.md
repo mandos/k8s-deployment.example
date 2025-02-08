@@ -276,6 +276,7 @@ subgraph "Core Services"
     operator[Vault Secrets Operator] 
   end
   reloader[Reloader]
+  metricsserver[Metrics Server]
 end
 
 subgraph "Application Layer"
@@ -344,6 +345,7 @@ subgraph "Core Services"
   vault-operator --> vault
   reloader --> devops
   postgresql --> devops
+  metrics-server --> devops
 end
 
 
@@ -362,7 +364,7 @@ end
 
 Namespaces with their purpose: 
 
-- **core** - Contains the DevOps chart release, managing Kubernetes configuration and minor core services (e.g., reloader).
+- **core** - Contains the DevOps chart release, managing Kubernetes configuration and minor core services (e.g., reloader, metrics-server).
 - **database** - PostgreSQL installation
 - **vault** - Dedicated to HashiCorp Vault and HashiCorp Secrets Operator.
 - **backend** - Namespace for the in-house backend applications.
@@ -371,6 +373,10 @@ Namespaces with their purpose:
 [Back to Table of Content](#table-of-content)
 
 ### External Services
+
+#### Metrics Server
+
+[Metrics Server](https://github.com/kubernetes-sigs/metrics-server) is required for Horizontal Pod Autoscaling (HPA).
 
 #### HashiCorp Vault
 
