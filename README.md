@@ -294,6 +294,36 @@ end
 
 [Back to Table of Content](#table-of-content)
 
+## Secrets Management
+
+I implemented two different solutions for secrets management: one based on [SOPS](https://github.com/getsops/sops) and the [Helm Secrets plugin](https://github.com/jkroepke/helm-secrets), and another using [HashiCorp Vault](https://developer.hashicorp.com/vault/docs?product_intent=vault). In both solutions, I prepared Kubernetes Secrets for the Backend service with database credentials, *app1-back* uses the Vault solution, while *app2-back* uses the SOPS-based solution with secrets managed by the DevOps team.
+
+### SOPS
+
+SOPS (Secrets OPerationS) is a production-grade tool by Mozilla that encrypts and decrypts configuration files (YAML, JSON, ENV, INI) while preserving plaintext structures for version control.
+
+In this approach, I use GPG keys exclusively to encrypt a YAML file with a master password. The process works as follows: the DevOps team has access to a designated GPG key, which they use to decrypt the YAML file containing the master password. This password is then used to install the PostgreSQL server and prepare the necessary secrets with database credentials for *app2-back*. The entire process is automated using a tool stack consisting of SOPS, the Helm Secrets plugin, and Helmfile. The configuration for SOPS is stored in the [.sops.yaml](.sops.yaml) file.
+
+As a best practice, the configuration includes a secondary (backup) key, which should be securely stored in a vault-preferably 50 meters underground in a highly secure location. This backup key is intended for use only if the primary operational key is lost.
+
+Additionally, I implemented Reloader, a complementary service that automatically reloads deployments whenever changes are made to ConfigMaps or Secrets.
+
+This solution is straightforward and requires minimal setup. Encrypted data can be securely stored in a repository that only the DevOps team has access to, ensuring that developers do not have direct access to sensitive secrets.
+
+### HashiCorp Vault
+
+HashiCorp Vault is a secure secrets management tool that encrypts, stores, and controls access to sensitive data through authentication, access policies, and dynamic secrets.
+
+In this solution, I installed and configured the Vault server, then populated it with data needed by the backend service. As a complementary service, I used Vault Secrets Operator, which provides a way to create Kubernetes secrets from data stored in Vault and automatically reloads deployments when this data changes. To achieve this, Vault Secrets Operator introduces some Custom Defined Resources (CDR) that can be used in Helm charts.
+
+In this process, the DevOps team is responsible for setting up Vault, configuring access to it, and populating it with the required data. They can also use CDR resources in their Helm charts to create the necessary secrets.
+
+This approach is not entirely straightforward; it requires careful setup and maintenance of additional services. However, it offers greater flexibility and enables advanced capabilities, such as dynamically generated database passwords with lifecycle rules. Additionally, it provides a clearer division of responsibilities between DevOps and development teams.
+
+As a side note, the Vault setup used in this demonstration runs in *dev mode*, meaning it is not suitable for production environments.
+
+[Back to Table of Content](#table-of-content)
+
 ## Application Stack 
 
 The Application Stack includes all releases managed by Helmfile (see [helmfile.yaml](helmfile.yaml)). This encompasses not only the applications that need to be deployed but also:
@@ -365,7 +395,9 @@ While I could also use Reloader for **app1**, I intentionally kept the secrets m
 
 #### PostgreSQL
 
-A non-HA, basic PostgreSQL installation is used, based on the [Bitnami PostgreSQL Helm chart](https://artifacthub.io/packages/helm/bitnami/postgresql). The setup mostly relies on default values, with minimal modifications, primarily storing the master password in a SOPS-encrypted YAML file for security.
+A non-HA, basic PostgreSQL installation is used, based on the [Bitnami PostgreSQL Helm chart](https://artifacthub.io/packages/helm/bitnami/postgresql). The setup mostly relies on default values, with minimal modifications, primarily storing the master password in a SOPS-encrypted YAML file for security. 
+
+No additional roles or databases were created; backend services use the *postgresql* user with the master password. Of course, this approach is **not acceptable** in a production environment, but it works fine for demonstration purposes.
 
 TODO:<br>
 [Hardening network policies for Postgresql](https://github.com/mandos/k8s-deployment.example/issues/5)
@@ -405,9 +437,4 @@ Frontend application is simple Nginx proxy with configuration pointing to Backen
 
 [Back to Table of Content](#table-of-content)
 
-## Secrets Management
-
-TODO
-
-[Back to Table of Content](#table-of-content)
 
