@@ -15,7 +15,7 @@ verificationImage:
   tag: 5
 
 # Give ability to run tests after release, will work only if atomic option is on
-autoTest: false
+autoRollback: false
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []

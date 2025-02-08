@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "backend.labels" . | nindent 4 }}
   annotations:
-    {{- if eq .Values.autoTest true }}
+    {{- if eq .Values.autoRollback true }}
     "helm.sh/hook": test,post-install,post-upgrade
     {{- else }}
     "helm.sh/hook": test

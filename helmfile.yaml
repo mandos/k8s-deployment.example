@@ -152,7 +152,7 @@ releases:
       - name: app1
         secrets:
           managedBy: vault
-        autoTest: true
+        autoRollback: true
 
   - name: app1-front
     # installed: false
@@ -190,6 +190,7 @@ releases:
           managedBy: sops
         autoscaling: 
           enabled: true
+          minReplicas: 3
 
   - name: app2-front
     # installed: false
