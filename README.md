@@ -11,8 +11,12 @@ Table of Content:
 - [Helmfile Reasoning](#helmfile-reasoning)
 - [Architecture](#architecture)
    * [Service Layer Breakdown](#service-layer-breakdown)
+- [Secrets Management](#secrets-management)
+   * [SOPS](#sops)
+   * [HashiCorp Vault](#hashicorp-vault-solution)
 - [Application Stack ](#application-stack)
    * [External Services](#external-services)
+      + [Metrics Server](#metrics-server)
       + [HashiCorp Vault](#hashicorp-vault)
       + [Reloader](#reloader)
       + [PostgreSQL](#postgresql)
@@ -20,7 +24,6 @@ Table of Content:
       + [DevOps](#devops)
       + [Backend](#backend)
       + [Frontend](#frontend)
-- [Secrets Management](#secrets-management)
 
 ## Introduction
 
@@ -311,7 +314,7 @@ Additionally, I implemented Reloader, a complementary service that automatically
 
 This solution is straightforward and requires minimal setup. Encrypted data can be securely stored in a repository that only the DevOps team has access to, ensuring that developers do not have direct access to sensitive secrets.
 
-### HashiCorp Vault
+### HashiCorp Vault Solution
 
 HashiCorp Vault is a secure secrets management tool that encrypts, stores, and controls access to sensitive data through authentication, access policies, and dynamic secrets.
 
@@ -436,11 +439,29 @@ This is the most complex chart I created for this project. It also serves as a t
 
 The service uses a simple web server based on [traeffic/whoami](https://github.com/traefik/whoami), which is written in Go. This tool is ideal for testing requests and environment variables, making it a perfect fit for this project.
 
+Notable features:
+
+- **Autoscaling** – Optionally, HPA (Horizontal Pod Autoscaler) can be used to scale the number of pods based on CPU or memory utilization. Alternatively, autoscaling can be managed using [KEDA](https://keda.sh) but I haven't implemented it here. One missing aspect here is node autoscaling, which would complement pod autoscaling in a more dynamic infrastructure setup (mostly cloud-based).
+
+- **Auto Rollback** – I implemented a test job to verify if the deployed application is working correctly. In a real implementation, this should involve smoke tests, but for this setup, I used it to check whether the service has the correct environment variables and a properly configured database (credentials, connection). This test can work in two ways:<br>
+  * A traditional approach where the test runs after deployment, and if it fails, a third-party tool performs a rollback. This process can be automated but requires multiple actions (deploy, test, rollback).
+  * Using a post-install or post-update hook to run the test, combined with Helm's atomic updates, to automatically roll back all changes if the deployment fails.
+
+- **High Availability (HA)** – In addition to autoscaling and maintaining at least two pods in deployments, I implemented anti-affinity rules to prefer pod distribution across different nodes. This helps maintain service availability in case of random node failures or rolling node upgrades.
+
+- **Secret Management** – Although both solutions use Kubernetes Secrets to provide database credentials to the backend service, they differ in how secrets are managed:
+  * For the SOPS solution, secrets are created by a separate process, while in the Vault-based solution, all configuration is managed within this Helm chart and Secrets are created by Vault Secrets Operator.
+  * The SOPS solution also requires annotations for the Reloader service, which is implemented here.
+
+- **Resource Settings** – CPU and memory limits and requests can be configured. Thanks to Helmfile, these settings can be easily managed per environment.
+
+- **Other** – Network policies are hardcoded, but deployment strategies can be slightly customized using the **rollingUpdate.maxUnavailable** and **rollingUpdate.maxSurge** parameters.
+
 #### Frontend
 
-Frontend application is simple Nginx proxy with configuration pointing to Backend servers. 
+The frontend application is a simple Nginx proxy configured to route requests to backend servers.
 
+This service has fewer features than the backend—it lacks Auto Rollback, tests, and Secret Management. The most notable addition is the implementation of an Ingress, allowing external access to the service. I created three Ingress resources to whitelist specific IP ranges for certain paths (see [Nginx Ingress - whitelist-source-range](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#whitelist-source-range)).
 
 [Back to Table of Content](#table-of-content)
-
 
