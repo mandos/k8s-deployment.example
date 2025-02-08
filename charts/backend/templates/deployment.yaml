@@ -9,15 +9,17 @@ metadata:
     reloader.stakater.com/auto: "true"
   {{- end}}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "backend.selectorLabels" . | nindent 6 }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }} 
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }} 
   template:
     metadata:
       labels:

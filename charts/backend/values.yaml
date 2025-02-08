@@ -17,6 +17,11 @@ verificationImage:
 # Give ability to run tests after release, will work only if atomic option is on
 autoRollback: false
 
+# This is settings for rollingUpdate of Deployment, can be absolute or percentage, more information can be find here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+rollingUpdate:
+  maxUnavailable: 1
+  maxSurge: 1
+
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 

@@ -14,6 +14,11 @@ backend:
 # Address in form of host:port 
   host: 
 
+# This is settings for rollingUpdate of Deployment, can be absolute or percentage, more information can be find here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+rollingUpdate:
+  maxUnavailable: 1
+  maxSurge: 1
+
 imagePullSecrets: []
 
 #This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
