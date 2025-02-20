@@ -58,6 +58,7 @@ releases:
     # installed: false
     chart: metrics-server/metrics-server
     namespace: core
+    timeout: 300
     labels:
       tier: core
       app: metrics-server
@@ -81,7 +82,7 @@ releases:
     needs:
       - core/devops
     values:
-      - environments/{{ .Environment.Name}}/vault.yaml
+      - environments/{{ .Environment.Name }}/vault.yaml
 
   - name: vault-operator
     # installed: false
@@ -93,7 +94,7 @@ releases:
       tier: core
       app: vault
     values:
-      - environments/{{ .Environment.Name}}/vault-operator.yaml
+      - environments/{{ .Environment.Name }}/vault-operator.yaml
     needs:
       - vault/vault
 
@@ -148,7 +149,7 @@ releases:
     needs: 
       - core/devops
     values:
-      - environments/{{ .Environment.Name}}/backend.yaml
+      - environments/{{ .Environment.Name }}/backend.yaml
       - name: app1
         secrets:
           managedBy: vault
@@ -164,7 +165,7 @@ releases:
     needs:
       - backend/app1-back
     values:
-      - environments/{{ .Environment.Name}}/frontend.yaml
+      - environments/{{ .Environment.Name }}/frontend.yaml
       - name: app1
         backend:
           host: "app1-back.backend.svc.cluster.local:80"
@@ -184,7 +185,7 @@ releases:
     needs: 
       - core/devops
     values:
-      - environments/{{ .Environment.Name}}/backend.yaml
+      - environments/{{ .Environment.Name }}/backend.yaml
       - name: app2
         secrets:
           managedBy: sops
